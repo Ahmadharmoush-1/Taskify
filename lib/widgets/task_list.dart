@@ -4,18 +4,18 @@ import 'task_item.dart';
 
 class TaskList extends StatelessWidget {
   final List<Task> tasks;
-  final Function(String) onDeleteTask;
-  final Function(String) onToggleTaskCompletion;
-  final Function(String, Task) onUpdateTask;
-  final Function() onAddTask;
-  final bool showCompleted;
-  final Function(bool) onToggleShowCompleted;
-  final Function(String) getCategoryColor;
+  final Function(String) onDeleteTask;//delete a task
+  final Function(String) onToggleTaskCompletion;//toggle the completion status of a task
+  final Function(String, Task) onUpdateTask;//update a task
+  final Function() onAddTask;//add a new task
+  final bool showCompleted;//show completed tasks
+  final Function(bool) onToggleShowCompleted;//toggle the visibility of completed tasks
+  final Function(String) getCategoryColor;//get the color of a category
 
   const TaskList({
     Key? key,
-    required this.tasks,
-    required this.onDeleteTask,
+    required this.tasks,//list of tasks to be displayed
+    required this.onDeleteTask,//delete a task
     required this.onToggleTaskCompletion,
     required this.onUpdateTask,
     required this.onAddTask,
@@ -26,12 +26,14 @@ class TaskList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //step1 we separet the tasks incomplete and completed.
     final incompleteTasks = tasks.where((task) => !task.completed).toList();
     final completedTasks = tasks.where((task) => task.completed).toList();
-
+    // Create a combined list of tasks to display
     final displayedTasks = [
-      ...incompleteTasks,
-      if (showCompleted) ...completedTasks,
+      ...incompleteTasks,// incompleteTasks is always included because 
+                        //you always want to display the incomplete tasks.
+      if (showCompleted) ...completedTasks,// Conditionally show completed tasks
     ];
 
     return Column(

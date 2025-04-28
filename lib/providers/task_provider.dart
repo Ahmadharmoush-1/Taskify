@@ -13,15 +13,16 @@ class TaskProvider extends ChangeNotifier {
   bool _showCompleted = true;
 
   TaskProvider() {
-    _initData();
+    _initData(); // Initializes data when the provider is created
   }
-
+//Getters for private variables
   List<Task> get tasks => _tasks;
   List<Category> get categories => _categories;
   String? get selectedCategory => _selectedCategory;
   String get searchQuery => _searchQuery;
   bool get showCompleted => _showCompleted;
 
+//This getter returns a filtered list of tasks based on:
   List<Task> get filteredTasks {
     return _tasks.where((task) {
       // Filter by category
@@ -39,14 +40,18 @@ class TaskProvider extends ChangeNotifier {
     }).toList();
   }
 
+//The constructor calls _initData(), which is an asynchronous method.
   Future<void> _initData() async {
-    await _loadTasks();
-    await _loadCategories();
-    notifyListeners();
+    await _loadTasks(); // Fetches the tasks from storage
+    await _loadCategories(); // Fetches the categories from storage
+    notifyListeners(); // Notifies any listeners (UI components) to rebuild
   }
 
   Future<void> _loadTasks() async {
-    _tasks = await _storageService.getTasks();
+    _tasks = await _storageService
+        .getTasks(); //method fetches the list of tasks from persistent storage
+    // database. If no tasks are found,
+    //it may load default tasks or an empty list.
   }
 
   Future<void> _loadCategories() async {
@@ -64,38 +69,42 @@ class TaskProvider extends ChangeNotifier {
   }
 
   Future<void> addTask(Task task) async {
-    _tasks.add(task);
-    await _storageService.saveTasks(_tasks);
-    notifyListeners();
+    _tasks.add(task); //  Add the new task to the in-memory list of tasks.
+    await _storageService.saveTasks(
+        _tasks); //Save the updated list of tasks to persistent storage.
+    notifyListeners(); // Triggers UI updates to reflect new data
   }
 
   Future<void> updateTask(String id, Task updatedTask) async {
-    final taskIndex = _tasks.indexWhere((task) => task.id == id);
+    final taskIndex = _tasks.indexWhere((task) =>
+        task.id == id); //searches for index with the same id to update
     if (taskIndex != -1) {
-      _tasks[taskIndex] = updatedTask;
-      await _storageService.saveTasks(_tasks);
-      notifyListeners();
+      _tasks[taskIndex] =
+          updatedTask; //Replace the Old Task with the Updated Task
+      await _storageService
+          .saveTasks(_tasks); //Save the Updated Tasks List to Storage
+      notifyListeners(); //Notify Listeners (Update the UI)
     }
   }
 
   Future<void> toggleTaskCompletion(String id) async {
     final taskIndex = _tasks.indexWhere((task) => task.id == id);
     if (taskIndex != -1) {
-      final task = _tasks[taskIndex];
+      final task = _tasks[taskIndex];// Get the Task at the Found Index
       _tasks[taskIndex] = task.copyWith(completed: !task.completed);
-      await _storageService.saveTasks(_tasks);
-      notifyListeners();
+      await _storageService.saveTasks(_tasks);//Saves the updated list of tasks to persistent storage.
+      notifyListeners();//Notify Listeners to Update the UI
     }
   }
 
   Future<void> deleteTask(String id) async {
-    _tasks.removeWhere((task) => task.id == id);
+    _tasks.removeWhere((task) => task.id == id);//Remove the Task with the Given ID from the List
     await _storageService.saveTasks(_tasks);
     notifyListeners();
   }
 
   Future<void> addCategory(Category category) async {
-    _categories.add(category);
+    _categories.add(category);// Add the new category to the in-memory list of categories.
     await _storageService.saveCategories(_categories);
     notifyListeners();
   }
@@ -109,16 +118,16 @@ class TaskProvider extends ChangeNotifier {
         _tasks[i] = _tasks[i].copyWith(category: "Uncategorized");
       }
     }
-
+     //Removes the category from the list
     _categories.removeWhere((cat) => cat.id == id);
-
+    //Removes the tasks from the list
     await _storageService.saveCategories(_categories);
     await _storageService.saveTasks(_tasks);
     notifyListeners();
   }
 
   void setFilter({String? category, String? searchQuery, bool? showCompleted}) {
-    if (category != null) _selectedCategory = category;
+    if (category != null) _selectedCategory = category;// Filters tasks by a specific category 
     if (searchQuery != null) _searchQuery = searchQuery;
     if (showCompleted != null) _showCompleted = showCompleted;
     notifyListeners();
@@ -131,9 +140,9 @@ class TaskProvider extends ChangeNotifier {
   }
 
   Color getCategoryColor(String categoryName) {
-    final category = _categories.firstWhere(
-      (cat) => cat.name == categoryName,
-      orElse: () => Category(name: categoryName, color: Colors.grey),
+    final category = _categories.firstWhere(//searches categorys for the given name
+      (cat) => cat.name == categoryName,//if found returns the category color
+      orElse: () => Category(name: categoryName, color: Colors.grey),//if not found returns a default color
     );
     return category.color;
   }
